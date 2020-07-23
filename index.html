@@ -13,7 +13,9 @@ title: Inicio
     </a>
   </h1>
   <div class="post-date">{{ post.date | date: "%b %-d, %Y" }}</div>
-  {{ post.content }}
+  {% if post.excerpt %}
+      {{ post.excerpt }}
+  {% endif %}
 </article>
 
 {% endfor %}
