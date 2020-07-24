@@ -1,27 +1,25 @@
-###########
-# site.title, site.url, site.author.name
-
 title:   'Oscar Illescas TFM'
-author:
-  name:  'Oscar Illescas Jiménez'
+# author:
+#   name:  'Oscar Illescas Jiménez'
 
-## note: 
-#  use site.path in your templates to make it work for both protocols e.g. http and https
-#  use site.url only inside the web feed template (e.g. requires full url incl. protocol) 
+# Site settings
+name: Oscar Illescas
+email: email
+description: "TFM of mastercloudapps"
+permalink: pretty
+baseurl: /
 path: ''
 url:  'https://blog.illescas.dev/'
 
 excerpt_separator: <!--more-->
-########
-# more settings
 
 markdown: kramdown
 
-sass:
-  sass_dir: css
-  style:    expanded
+# sass:
+#   sass_dir: css
+#   style:    expanded
 
-permalink: /:title.html
+# permalink: /:title.html
 
 exclude:
 - README.md
@@ -30,3 +28,11 @@ exclude:
 safe: true
 lsi: false
 
+
+
+# social
+github:
+  username: oillescas
+
+twitter:
+  username: oillescas
