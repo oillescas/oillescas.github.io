@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Technologies faas in kubernetes  |  Oscar Illescas</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="author" content="">
+    <meta name="description" content="TFM of mastercloudapps">
+    <link rel="shortcut icon" type="image/png" href="http://via.placeholder.com/128x128">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Crimson+Text">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.2/css/bulma.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <nav class="nav">
+    <div class="container">
+        <div class="nav-left">
+            <a class="nav-item" href="/">
+                <span class="icon">
+                    <i class="fa fa-home"></i>
+                </span>
+            </a>
+        </div>
+
+        <div class="nav-center">
+            <a class="nav-item" target="_blank" href="https://www.github.com/oillescas/">
+                <span class="icon">
+                    <i class="fa fa-github"></i>
+                </span>
+            </a>
+            <a class="nav-item" target="_blank" href="https://www.twitter.com/oillescas/">
+                <span class="icon">
+                    <i class="fa fa-twitter"></i>
+                </span>
+            </a>
+        </div>
+
+        <span class="nav-toggle">
+        <span></span>
+        <span></span>
+        <span></span>
+        </span>
+
+        <div class="nav-right nav-menu">
+            
+            <a class="nav-item" href="/feed.xml">
+                <span>Feed</span>
+            </a>
+            
+        </div>
+
+</nav>
+    <section class="section">
+    <div class="container">
+        <div class="heading has-text-centered">
+            <p class="title is-3">Technologies faas in kubernetes </p>
+            <p class="subtitle is-6"><span class="tag is-white"><small>July 15, 2020</small></span></p>
+        </div>
+        <br>
+        <div class="columns is-multiline">
+
+            <div class="column is-half is-offset-one-quarter">
+                <div class="content">
+                    <h2 id="stack">Stack</h2>
+
+<p>For this study I will use multipass to mount the linux virtual machines and microk8s to create the kubernetes clusters, in another entry I will document how to mount the clusters in this stack.</p>
+
+<h2 id="test">Test</h2>
+
+<ul>
+  <li>Knative</li>
+  <li>OpenFaas</li>
+  <li>OpenWhisk</li>
+</ul>
+
+<!--more-->
+
+<h2 id="install">Install</h2>
+
+<h3 id="knative">Knative</h3>
+
+<ul>
+  <li>Prerequisites</li>
+</ul>
+
+<p>Microk8s whit istio.</p>
+
+<p><a href="https://knative.dev/docs/install/any-kubernetes-cluster/">https://knative.dev/docs/install/any-kubernetes-cluster/</a></p>
+
+<ul>
+  <li>Installing the Serving component</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl apply <span class="nt">--filename</span> https://github.com/knative/serving/releases/download/v0.15.0/serving-crds.yaml
+kubectl apply <span class="nt">--filename</span> https://github.com/knative/serving/releases/download/v0.15.0/serving-core.yaml
+kubectl apply <span class="nt">--filename</span> https://github.com/knative/net-istio/releases/download/v0.15.0/release.yaml
+</code></pre></div></div>
+
+<ul>
+  <li>Monitor the Knative components until all of the components show a STATUS of Running or Completed:</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl get pods <span class="nt">--namespace</span> knative-serving
+</code></pre></div></div>
+
+<ul>
+  <li>Installing the eventig component</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl apply <span class="nt">--filename</span> https://github.com/knative/eventing/releases/download/v0.16.0/eventing-crds.yaml
+kubectl apply <span class="nt">--filename</span> https://github.com/knative/eventing/releases/download/v0.16.0/eventing-core.yaml
+kubectl apply <span class="nt">--filename</span> https://github.com/knative/eventing/releases/download/v0.16.0/in-memory-channel.yaml
+kubectl apply <span class="nt">--filename</span> https://github.com/knative/eventing/releases/download/v0.16.0/mt-channel-broker.yaml
+</code></pre></div></div>
+
+<ul>
+  <li>Monitor the Knative components until all of the components show a STATUS of Running:</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl get pods <span class="nt">--namespace</span> knative-eventing
+</code></pre></div></div>
+
+<ul>
+  <li>Installing the Observability plugin</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl apply <span class="nt">--filename</span> https://github.com/knative/serving/releases/download/v0.16.0/monitoring-core.yaml
+kubectl apply <span class="nt">--filename</span> https://github.com/knative/serving/releases/download/v0.16.0/monitoring-metrics-prometheus.yaml
+</code></pre></div></div>
+
+<h3 id="openfaas">OpenFaas</h3>
+
+<ul>
+  <li>Clone repository</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/openfaas/faas-netes
+</code></pre></div></div>
+
+<ul>
+  <li>Create namespaces</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl apply <span class="nt">-f</span> https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml
+</code></pre></div></div>
+
+<ul>
+  <li>Generate password</li>
+</ul>
+
+<pre><code class="language-BASH"># generate a random password
+PASSWORD=$(head -c 12 /dev/urandom | shasum| cut -d' ' -f1)
+
+kubectl -n openfaas create secret generic basic-auth \
+--from-literal=basic-auth-user=admin \
+--from-literal=basic-auth-password="$PASSWORD"
+</code></pre>
+
+<ul>
+  <li>Deploy openfaas</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd </span>faas-netes <span class="o">&amp;&amp;</span> <span class="se">\</span>
+kubectl apply <span class="nt">-f</span> ./yaml
+</code></pre></div></div>
+
+<ul>
+  <li>install cli</li>
+</ul>
+
+<p>TODO</p>
+
+<h3 id="openwhisk">OpenWhisk</h3>
+
+<ul>
+  <li>Prerequisites</li>
+</ul>
+
+<p>Look for the ip of the virtual machine</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>multipass list
+
+Name                    State             IPv4             Image
+knative                 Stopped           <span class="nt">--</span>               Ubuntu 18.04 LTS
+openwhisk               Running           192.168.64.10    Ubuntu 18.04 LTS
+openfaas                Stopped           <span class="nt">--</span>               Ubuntu 18.04 LTS
+</code></pre></div></div>
+
+<p>Enable helm3 in cluster</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>multipass shell &lt;vm name&gt;
+microk8s <span class="nb">enable </span>helm3
+</code></pre></div></div>
+
+<ul>
+  <li>Clone repository</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/apache/openwhisk-deploy-kube.git
+</code></pre></div></div>
+
+<ul>
+  <li>Customize the Deployment
+create mycluster.yaml</li>
+</ul>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">whisk</span><span class="pi">:</span>
+  <span class="na">ingress</span><span class="pi">:</span>
+    <span class="na">type</span><span class="pi">:</span> <span class="s">NodePort</span>
+    <span class="na">apiHostName</span><span class="pi">:</span> <span class="s">192.168.64.10</span> <span class="c1">#&lt;change by ip of vm*&gt;</span>
+    <span class="na">apiHostPort</span><span class="pi">:</span> <span class="m">31001</span>
+
+<span class="na">nginx</span><span class="pi">:</span>
+  <span class="na">httpsNodePort</span><span class="pi">:</span> <span class="m">31001</span>
+</code></pre></div></div>
+
+<ul>
+  <li>Deploy With Helm</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>microk8s helm3 <span class="nb">install </span>owdev ./helm/openwhisk <span class="nt">-n</span> openwhisk <span class="nt">--create-namespace</span> <span class="nt">-f</span> mycluster.yaml
+</code></pre></div></div>
+
+<ul>
+  <li>Install and Configure the wsk CLI</li>
+</ul>
+
+<p>TODO</p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+    <footer class="page-footer">
+    <div class="container">
+        <div class="columns">
+            <div class="column is-4">
+                <div class="content">
+                    <p>
+                        <small>
+                            <span>Powered by</span>
+                            <a target="_blank" href="http://jekyllrb.com/">Jekyll</a>
+                            <span> / Styled using </span>
+                            <a target="_blank" href="http://bulma.io/">Bulma</a>
+                        </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="/js/script.js"></script>
+
+<script async defer data-website-id="4eaecfcc-585a-4d83-8cf5-b69d28b8a672" src="https://illescas-umami.herokuapp.com/umami.js"></script>
+</body>
+
+</html>
