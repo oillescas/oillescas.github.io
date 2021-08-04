@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>News 'n' Updates | Oscar Illescas TFM</title>
+  <link href="https://blog.illescas.dev/feed.xml" rel="self"/>
+  <link href="https://blog.illescas.dev/"/>
+  <updated>2021-08-04T17:07:38+00:00</updated>
+  <id>https://blog.illescas.dev/</id>
+  <author>
+    <name></name>
+  </author>
+  <generator>Jekyll v4.1.1</generator>
+
+  
+  <entry>
+    <title>Technologies faas in kubernetes </title>
+    <link href="https://blog.illescas.dev/tfm/2020/07/15/faas/"/>
+    <updated>2020-07-15T00:00:00+00:00</updated>
+    <id>https://blog.illescas.dev/tfm/2020/07/15/faas</id>
+    <content type="html">&lt;h2 id=&quot;stack&quot;&gt;Stack&lt;/h2&gt;
+
+&lt;p&gt;For this study I will use multipass to mount the linux virtual machines and microk8s to create the kubernetes clusters, in another entry I will document how to mount the clusters in this stack.&lt;/p&gt;
+
+&lt;h2 id=&quot;test&quot;&gt;Test&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Knative&lt;/li&gt;
+  &lt;li&gt;OpenFaas&lt;/li&gt;
+  &lt;li&gt;OpenWhisk&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!--more--&gt;
+
+&lt;h2 id=&quot;install&quot;&gt;Install&lt;/h2&gt;
+
+&lt;h3 id=&quot;knative&quot;&gt;Knative&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Prerequisites&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Microk8s whit istio.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://knative.dev/docs/install/any-kubernetes-cluster/&quot;&gt;https://knative.dev/docs/install/any-kubernetes-cluster/&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Installing the Serving component&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl apply &lt;span class=&quot;nt&quot;&gt;--filename&lt;/span&gt; https://github.com/knative/serving/releases/download/v0.15.0/serving-crds.yaml
+kubectl apply &lt;span class=&quot;nt&quot;&gt;--filename&lt;/span&gt; https://github.com/knative/serving/releases/download/v0.15.0/serving-core.yaml
+kubectl apply &lt;span class=&quot;nt&quot;&gt;--filename&lt;/span&gt; https://github.com/knative/net-istio/releases/download/v0.15.0/release.yaml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Monitor the Knative components until all of the components show a STATUS of Running or Completed:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl get pods &lt;span class=&quot;nt&quot;&gt;--namespace&lt;/span&gt; knative-serving
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Installing the eventig component&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl apply &lt;span class=&quot;nt&quot;&gt;--filename&lt;/span&gt; https://github.com/knative/eventing/releases/download/v0.16.0/eventing-crds.yaml
+kubectl apply &lt;span class=&quot;nt&quot;&gt;--filename&lt;/span&gt; https://github.com/knative/eventing/releases/download/v0.16.0/eventing-core.yaml
+kubectl apply &lt;span class=&quot;nt&quot;&gt;--filename&lt;/span&gt; https://github.com/knative/eventing/releases/download/v0.16.0/in-memory-channel.yaml
+kubectl apply &lt;span class=&quot;nt&quot;&gt;--filename&lt;/span&gt; https://github.com/knative/eventing/releases/download/v0.16.0/mt-channel-broker.yaml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Monitor the Knative components until all of the components show a STATUS of Running:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl get pods &lt;span class=&quot;nt&quot;&gt;--namespace&lt;/span&gt; knative-eventing
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Installing the Observability plugin&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl apply &lt;span class=&quot;nt&quot;&gt;--filename&lt;/span&gt; https://github.com/knative/serving/releases/download/v0.16.0/monitoring-core.yaml
+kubectl apply &lt;span class=&quot;nt&quot;&gt;--filename&lt;/span&gt; https://github.com/knative/serving/releases/download/v0.16.0/monitoring-metrics-prometheus.yaml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;openfaas&quot;&gt;OpenFaas&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Clone repository&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git clone https://github.com/openfaas/faas-netes
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Create namespaces&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl apply &lt;span class=&quot;nt&quot;&gt;-f&lt;/span&gt; https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Generate password&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-BASH&quot;&gt;# generate a random password
+PASSWORD=$(head -c 12 /dev/urandom | shasum| cut -d' ' -f1)
+
+kubectl -n openfaas create secret generic basic-auth \
+--from-literal=basic-auth-user=admin \
+--from-literal=basic-auth-password=&quot;$PASSWORD&quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Deploy openfaas&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;faas-netes &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+kubectl apply &lt;span class=&quot;nt&quot;&gt;-f&lt;/span&gt; ./yaml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;install cli&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;TODO&lt;/p&gt;
+
+&lt;h3 id=&quot;openwhisk&quot;&gt;OpenWhisk&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Prerequisites&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Look for the ip of the virtual machine&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;multipass list
+
+Name                    State             IPv4             Image
+knative                 Stopped           &lt;span class=&quot;nt&quot;&gt;--&lt;/span&gt;               Ubuntu 18.04 LTS
+openwhisk               Running           192.168.64.10    Ubuntu 18.04 LTS
+openfaas                Stopped           &lt;span class=&quot;nt&quot;&gt;--&lt;/span&gt;               Ubuntu 18.04 LTS
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Enable helm3 in cluster&lt;/p&gt;
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;multipass shell &amp;lt;vm name&amp;gt;
+microk8s &lt;span class=&quot;nb&quot;&gt;enable &lt;/span&gt;helm3
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Clone repository&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git clone https://github.com/apache/openwhisk-deploy-kube.git
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Customize the Deployment
+create mycluster.yaml&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;na&quot;&gt;whisk&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;ingress&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;NodePort&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;apiHostName&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;192.168.64.10&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;#&amp;lt;change by ip of vm*&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;apiHostPort&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;31001&lt;/span&gt;
+
+&lt;span class=&quot;na&quot;&gt;nginx&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;httpsNodePort&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;31001&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Deploy With Helm&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;microk8s helm3 &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;owdev ./helm/openwhisk &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt; openwhisk &lt;span class=&quot;nt&quot;&gt;--create-namespace&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-f&lt;/span&gt; mycluster.yaml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Install and Configure the wsk CLI&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;TODO&lt;/p&gt;
+</content>
+  </entry>
+  
+  <entry>
+    <title>Study of frameworks and serverless techniques in Kubernetes</title>
+    <link href="https://blog.illescas.dev/tfm/2020/07/01/kickoff/"/>
+    <updated>2020-07-01T00:00:00+00:00</updated>
+    <id>https://blog.illescas.dev/tfm/2020/07/01/kickoff</id>
+    <content type="html">&lt;p&gt;With this work I will try to make an analysis of the alternatives in kubernetes to the serverless ecosystem&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Functions as a service (Faas)&lt;/li&gt;
+  &lt;li&gt;Databases&lt;/li&gt;
+  &lt;li&gt;Message queues&lt;/li&gt;
+  &lt;li&gt;File Management&lt;/li&gt;
+  &lt;li&gt;User Management&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!--more--&gt;
+&lt;p&gt;Here is a small summary of the technologies or frameworks that I can analyze&lt;/p&gt;
+
+&lt;h2 id=&quot;faas&quot;&gt;Faas&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Knative&lt;/li&gt;
+  &lt;li&gt;OpenFaas&lt;/li&gt;
+  &lt;li&gt;OpenWhisk&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;databases&quot;&gt;Databases&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;MongoDB Enterprise Kubernetes Operator&lt;/li&gt;
+  &lt;li&gt;Postgres Operator&lt;/li&gt;
+  &lt;li&gt;ScyllaDB&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;queues&quot;&gt;Queues&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;NATS&lt;/li&gt;
+  &lt;li&gt;KubeMQ&lt;/li&gt;
+  &lt;li&gt;RabbitMQ&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;file-management&quot;&gt;File Management&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Minio&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;user-management&quot;&gt;User Management&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Keycloak&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;All these technologies will be updated as the study of them progresses&lt;/p&gt;
+</content>
+  </entry>
+  
+</feed>
